@@ -1,8 +1,8 @@
-# Project 3: Loan Default Risk Scoring & Credit Decision Engine
+# Loan Default Risk Scoring and Credit Decision Engine
 
-This project builds a regulatory-grade credit risk scorecard engine that bins numerical and categorical features using Weight of Evidence (WoE) and Information Value (IV), trains a regularized Logistic Regression model, and scales parameters to standardized credit scorecards ($300 - 850$ points). It also determines the optimal cutoff threshold by maximizing net portfolio profits and calculates Expected Loss ($\text{EL}$).
+A regulatory-grade credit risk scorecard engine that bins numerical and categorical features using Weight of Evidence (WoE) and Information Value (IV), trains a regularized Logistic Regression model, and scales parameters to standardized credit scorecards (300 - 850 points). It also determines the optimal cutoff threshold by maximizing net portfolio profits and calculates Expected Loss (EL).
 
-## 🚀 Setup & Execution
+## Setup and Execution
 
 ### 1. Requirements
 Ensure you have the required Python packages installed in your environment:
@@ -18,15 +18,15 @@ python main.py
 This spins up the FastAPI server on `http://127.0.0.1:8003`. On startup, it automatically generates a realistic credit risk history dataset (`mock_credit_data.csv`) and fits the scorecard.
 
 ### 3. Open the Frontend
-Simply open `frontend/index.html` directly in any web browser. You can input applicant parameters on the sidebar form and click **Execute Credit Appraisal** to generate a formal decision slip with a detailed points breakdown, or view model ROC curves and score distributions on the diagnostics tab.
+Visit the server root URL in your browser: `http://127.0.0.1:8003/` to load the interactive portal.
 
 ---
 
-## 📈 Credit Scorecard Math & Video Guidance Reference
+## Methodology
 
-This project is built strictly following the guidelines from the **AIMLModeling** tutorial: *Credit Risk Modeling in Python*.
+This engine implements banking standards for credit default modeling and portfolio optimization:
 
-1. **Weight of Evidence (WoE) & Information Value (IV)**:
+1. **Weight of Evidence (WoE) and Information Value (IV)**:
    Discretizes continuous parameters using optimal split points (via a Decision Tree classifier). For each bin $i$:
    $$\text{WoE}_i = \ln\left( \frac{\% \text{ Good}_i}{\% \text{ Bad}_i} \right)$$
    $$\text{IV}_i = \left( \% \text{ Good}_i - \% \text{ Bad}_i \right) \times \text{WoE}_i$$
