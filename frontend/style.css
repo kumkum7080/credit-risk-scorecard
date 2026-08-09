@@ -1,0 +1,405 @@
+/* Corporate Banking Credit Underwriting CSS - Vanilla CSS */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Work+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg-main: #FCFAF7; /* Ivory background */
+    --bg-panel: #F4EFE6; /* Muted ivory panel */
+    --bg-card: #FFFFFF;
+    --border-color: #D3C2B0; /* Muted gold/bronze border */
+    
+    --navy-primary: #0C1E36; /* Deep corporate navy */
+    --navy-light: #1A365D;
+    --gold-accent: #C5A059; /* Warm gold accent */
+    --text-dark: #1E293B;
+    --text-muted: #64748B;
+    
+    --success: #15803D; /* Deep forest green */
+    --danger: #991B1B;  /* Deep crimson */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    font-family: 'Work Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Formal Header */
+header {
+    background-color: var(--navy-primary);
+    color: #FFFFFF;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid var(--gold-accent);
+}
+
+.brand-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.bank-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--gold-accent);
+}
+
+.app-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94A3B8;
+}
+
+/* Page Layout Grid */
+.underwriting-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 30px;
+    max-width: 1440px;
+    width: 100%;
+    margin: 30px auto;
+    padding: 0 20px;
+    flex: 1;
+}
+
+@media (max-width: 1024px) {
+    .underwriting-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Left panel: Form card */
+.form-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--navy-primary);
+    border-radius: 6px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(12, 30, 54, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: fit-content;
+}
+
+.section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--navy-primary);
+    border-bottom: 2px solid var(--gold-accent);
+    padding-bottom: 6px;
+    margin-bottom: 5px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--navy-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input, select {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--navy-primary);
+    box-shadow: 0 0 0 3px rgba(12, 30, 54, 0.1);
+}
+
+.btn-appraise {
+    background-color: var(--navy-primary);
+    color: #FFFFFF;
+    border: 1px solid var(--gold-accent);
+    padding: 12px;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.btn-appraise:hover {
+    background-color: var(--navy-light);
+    color: var(--gold-accent);
+}
+
+/* Right panel: Details and metrics */
+.results-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Tab bar for switching between appraisal and diagnostics */
+.tabs-bar {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    gap: 10px;
+}
+
+.tab-btn {
+    background-color: transparent;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: var(--navy-primary);
+}
+
+.tab-btn.active {
+    color: var(--navy-primary);
+    border-bottom-color: var(--gold-accent);
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+/* Appraisal Slip Panel styles */
+.appraisal-slip {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    position: relative;
+}
+
+/* Decision watermark stamp */
+.decision-stamp {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    border: 4px double var(--success);
+    color: var(--success);
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    transform: rotate(12deg);
+    border-radius: 4px;
+    opacity: 0.85;
+    display: none;
+}
+
+.decision-stamp.rejected {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.slip-header {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+/* Credit score dial gauge circle */
+.score-circle-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background-color: var(--bg-panel);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid var(--border-color);
+}
+
+.score-value {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--navy-primary);
+}
+
+.score-label {
+    position: absolute;
+    bottom: 20px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.slip-quick-stats {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-lbl {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.stat-val {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--navy-primary);
+}
+
+/* Points Breakdown table inside slip */
+.table-wrapper {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+th {
+    background-color: var(--bg-panel);
+    color: var(--navy-primary);
+    font-weight: 700;
+    font-family: 'Cinzel', serif;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+}
+
+td {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.points-add {
+    color: var(--success);
+    font-weight: bold;
+}
+
+.points-sub {
+    color: var(--danger);
+    font-weight: bold;
+}
+
+/* Diagnostics plots grid */
+.diagnostics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+@media (max-width: 1200px) {
+    .diagnostics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+}
+
+.chart-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--navy-primary);
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.chart-wrapper {
+    height: 300px;
+    width: 100%;
+}
+
+/* Placeholder State */
+.placeholder-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 30px;
+    border: 2px dashed var(--border-color);
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    text-align: center;
+    gap: 15px;
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    color: var(--border-color);
+}
+
+.placeholder-text {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--text-muted);
+}

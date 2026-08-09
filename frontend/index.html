@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regulatory-Grade Credit Scorecard & Underwriting Portal</title>
+    <meta name="description" content="Evaluate credit risk applicants, calculate expected losses, and inspect model diagnostics using Weight of Evidence (WoE) and scaled scorecards.">
+    <link rel="stylesheet" href="style.css">
+    <!-- Plotly.js for plotting -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="brand-section">
+            <span class="bank-name">BANK OF ANTIGRAVITY</span>
+            <span class="app-title">Credit Risk Underwriting & Appraisal Portal</span>
+        </div>
+        <div style="font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--gold-accent);">
+            Model Code: REG-LR-v1.0
+        </div>
+    </header>
+
+    <main class="underwriting-layout">
+        <!-- Left Sidebar: Input Form -->
+        <section class="form-card">
+            <div class="section-title">Applicant Credentials</div>
+            
+            <form id="appraisal-form">
+                <div class="form-group">
+                    <label for="input-age">Age of Applicant (Years)</label>
+                    <input type="number" id="input-age" value="34" min="18" max="100" required>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-income">Annual Income ($)</label>
+                    <input type="number" id="input-income" value="65000" min="1000" required>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-amount">Requested Loan Amount ($)</label>
+                    <input type="number" id="input-amount" value="15000" min="500" required>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-emp">Employment Length (Years)</label>
+                    <input type="number" id="input-emp" value="5" min="0" max="60" required>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-home">Home Ownership Status</label>
+                    <select id="input-home" required>
+                        <option value="RENT">RENT</option>
+                        <option value="MORTGAGE" selected>MORTGAGE</option>
+                        <option value="OWN">OWN</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-purpose">Loan Purpose</label>
+                    <select id="input-purpose" required>
+                        <option value="DEBT_CONSOLIDATION" selected>DEBT CONSOLIDATION</option>
+                        <option value="HOME_IMPROVEMENT">HOME IMPROVEMENT</option>
+                        <option value="EDUCATION">EDUCATION</option>
+                        <option value="VENTURE">BUSINESS VENTURE</option>
+                        <option value="MEDICAL">MEDICAL ASSISTANCE</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-history">Credit History Length (Years)</label>
+                    <input type="number" id="input-history" value="8" min="1" max="50" required>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-default">Prior Default Records</label>
+                    <select id="input-default" required>
+                        <option value="0" selected>NO PRIOR DEFAULT</option>
+                        <option value="1">HISTORICAL DEFAULT RECORDED</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-appraise" style="width:100%; margin-top: 20px;">Execute Credit Appraisal</button>
+            </form>
+            
+            <a href="http://127.0.0.1:8003/api/download_dataset" class="btn-outline" style="text-decoration:none; text-align:center; font-family:'Cinzel'; font-size:0.8rem; padding:8px;">Download Base Model Dataset</a>
+        </section>
+
+        <!-- Right Panel: Results & Diagnostics -->
+        <section class="results-panel">
+            <div class="tabs-bar">
+                <button class="tab-btn active" data-tab="tab-slip">Appraisal Decision Slip</button>
+                <button class="tab-btn" data-tab="tab-diagnostics">Calibration & Performance</button>
+            </div>
+
+            <!-- Tab 1: Decision Slip -->
+            <div class="tab-content active" id="tab-slip">
+                <div class="placeholder-msg" id="slip-placeholder">
+                    <div class="placeholder-icon">📄</div>
+                    <div class="placeholder-text">Submit the applicant credentials on the left to generate the credit scorecard appraisal report.</div>
+                </div>
+
+                <div class="appraisal-slip" id="appraisal-report" style="display: none;">
+                    <div class="decision-stamp" id="decision-stamp">APPROVED</div>
+                    
+                    <div class="slip-header">
+                        <div class="score-circle-container" id="score-ring">
+                            <span class="score-value" id="score-val">740</span>
+                            <span class="score-label">Credit Score</span>
+                        </div>
+                        <div class="slip-quick-stats">
+                            <div class="stat-item">
+                                <span class="stat-lbl">Underwriting Decision</span>
+                                <span class="stat-val" id="report-decision" style="font-family:'Cinzel';">APPROVED</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-lbl">Model Cutoff Score</span>
+                                <span class="stat-val" id="report-cutoff">600</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-lbl">Probability of Default</span>
+                                <span class="stat-val" id="report-pd">1.5%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-lbl">Expected Loss (LGD 45%)</span>
+                                <span class="stat-val" id="report-el">$120.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="section-title" style="font-size: 0.9rem; margin-bottom: 10px;">Scorecard Point Breakdown</div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Application Variable</th>
+                                        <th>Raw Value Input</th>
+                                        <th>Scorecard Bin Mapping</th>
+                                        <th>Attribute Score Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="score-breakdown-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <button class="btn-outline" id="btn-print" style="width:fit-content; align-self:flex-end; font-family:'Cinzel'; font-size:0.8rem;">Print Appraisal Slip</button>
+                </div>
+            </div>
+
+            <!-- Tab 2: Performance Diagnostics -->
+            <div class="tab-content" id="tab-diagnostics">
+                <!-- Scorecard Points Master Calibration -->
+                <div class="chart-card">
+                    <div class="chart-title">Scaled Credit Scorecard Rules Calibration</div>
+                    <div style="max-height: 250px; overflow-y: auto;" class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Variable</th>
+                                    <th>Bin Boundary Range</th>
+                                    <th>Attribute Points</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calibration-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="diagnostics-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">ROC Curve (Model Discrimination Capacity)</div>
+                        <div class="chart-wrapper" id="chart-roc"></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Net Expected Profit Optimization Cutoff</div>
+                        <div class="chart-wrapper" id="chart-profit"></div>
+                    </div>
+                    <div class="chart-card" style="grid-column: span 2;">
+                        <div class="chart-title">Standardized Credit Score Distribution (Portfolio Density)</div>
+                        <div class="chart-wrapper" id="chart-dist"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8003/api";
+        let modelCalibration = null;
+
+        // Fetch model calibration on page load
+        window.addEventListener('DOMContentLoaded', fetchCalibration);
+
+        // Tab selection logic
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                const tabId = btn.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+                
+                // Resize plotly charts
+                if (tabId === 'tab-diagnostics') {
+                    setTimeout(() => {
+                        Plotly.Plots.resize(document.getElementById('chart-roc'));
+                        Plotly.Plots.resize(document.getElementById('chart-profit'));
+                        Plotly.Plots.resize(document.getElementById('chart-dist'));
+                    }, 50);
+                }
+            });
+        });
+
+        async function fetchCalibration() {
+            try {
+                const response = await fetch(`${API_URL}/train_metrics`);
+                if (!response.ok) throw new Error("Failed to load calibration.");
+                
+                modelCalibration = await response.json();
+                
+                renderCalibrationTable();
+                renderROC();
+                renderProfitCurve();
+                renderScoreDistribution();
+                
+            } catch (err) {
+                alert(`Error loading credit model metrics: ${err.message}`);
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('appraisal-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                age: parseFloat(document.getElementById('input-age').value),
+                income: parseFloat(document.getElementById('input-income').value),
+                loan_amount: parseFloat(document.getElementById('input-amount').value),
+                emp_length: parseFloat(document.getElementById('input-emp').value),
+                home_ownership: document.getElementById('input-home').value,
+                purpose: document.getElementById('input-purpose').value,
+                credit_history_length: parseFloat(document.getElementById('input-history').value),
+                historical_default: parseInt(document.getElementById('input-default').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/appraise`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error("Appraisal failed.");
+                
+                const result = await response.json();
+                displayAppraisalReport(result);
+                
+            } catch (err) {
+                alert(`Appraisal failed: ${err.message}`);
+            }
+        });
+
+        function displayAppraisalReport(data) {
+            document.getElementById('slip-placeholder').style.display = 'none';
+            document.getElementById('appraisal-report').style.display = 'block';
+            
+            // Score circle color gradient based on score (Red to Green)
+            const ring = document.getElementById('score-ring');
+            const score = data.score;
+            document.getElementById('score-val').innerText = score;
+            
+            let color = 'var(--danger)';
+            if (score >= 700) color = 'var(--success)';
+            else if (score >= 600) color = '#D97706'; // Amber
+            else if (score >= 500) color = '#E11D48'; // Rose
+            
+            ring.style.borderColor = color;
+            
+            // Decision stamp watermark
+            const stamp = document.getElementById('decision-stamp');
+            stamp.style.display = 'block';
+            stamp.innerText = data.decision;
+            if (data.decision === 'APPROVED') {
+                stamp.className = "decision-stamp";
+                document.getElementById('report-decision').style.color = "var(--success)";
+            } else {
+                stamp.className = "decision-stamp rejected";
+                document.getElementById('report-decision').style.color = "var(--danger)";
+            }
+            
+            document.getElementById('report-decision').innerText = data.decision;
+            document.getElementById('report-cutoff').innerText = data.score_cutoff;
+            document.getElementById('report-pd').innerText = (data.probability_of_default * 100).toFixed(2) + "%";
+            document.getElementById('report-el').innerText = "$" + data.expected_loss.toLocaleString(undefined, {maximumFractionDigits: 2});
+            
+            // Breakdown table
+            const tbody = document.getElementById('score-breakdown-body');
+            tbody.innerHTML = "";
+            
+            for (const [col, info] of Object.entries(data.breakdown)) {
+                const tr = document.createElement('tr');
+                
+                // Format variable names
+                const formattedName = col.replace(/_/g, ' ').toUpperCase();
+                
+                let rawVal = info.value;
+                if (col === 'income' || col === 'loan_amount') {
+                    rawVal = "$" + info.value.toLocaleString();
+                } else if (col === 'historical_default') {
+                    rawVal = info.value === 1 ? 'Yes' : 'No';
+                }
+                
+                const pts = info.points;
+                const pointClass = pts >= 0 ? "points-add" : "points-sub";
+                
+                tr.innerHTML = `
+                    <td style="font-weight:600; color:var(--navy-primary)">${formattedName}</td>
+                    <td>${rawVal}</td>
+                    <td><code>${info.bin}</code></td>
+                    <td class="${pointClass}">${pts >= 0 ? '+' : ''}${pts} pts</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Print slip handler
+        document.getElementById('btn-print').addEventListener('click', () => {
+            window.print();
+        });
+
+        function renderCalibrationTable() {
+            if (!modelCalibration) return;
+            const tbody = document.getElementById('calibration-table-body');
+            tbody.innerHTML = "";
+            
+            for (const [col, details] of Object.entries(modelCalibration.scorecard)) {
+                let firstRow = true;
+                const binCount = Object.keys(details.bins).length;
+                
+                for (const [binName, pts] of Object.entries(details.bins)) {
+                    const tr = document.createElement('tr');
+                    
+                    if (firstRow) {
+                        tr.innerHTML = `
+                            <td rowspan="${binCount}" style="font-weight:bold; color:var(--navy-primary); border-right:1px solid var(--border-color)">${col.toUpperCase()}</td>
+                            <td><code>${binName}</code></td>
+                            <td style="font-weight:bold">${pts}</td>
+                        `;
+                        firstRow = false;
+                    } else {
+                        tr.innerHTML = `
+                            <td><code>${binName}</code></td>
+                            <td style="font-weight:bold">${pts}</td>
+                        `;
+                    }
+                    tbody.appendChild(tr);
+                }
+            }
+        }
+
+        function renderROC() {
+            if (!modelCalibration) return;
+            const curve = modelCalibration.roc_curve;
+            
+            const rocTrace = {
+                x: curve.fpr,
+                y: curve.tpr,
+                mode: 'lines',
+                name: `ROC Curve (AUC = ${modelCalibration.metrics.roc_auc.toFixed(3)})`,
+                line: { color: 'var(--navy-primary)', width: 3 }
+            };
+            
+            const diagTrace = {
+                x: [0, 1],
+                y: [0, 1],
+                mode: 'lines',
+                name: 'Random Guess',
+                line: { color: 'var(--border-color)', width: 1.5, dash: 'dash' }
+            };
+            
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                xaxis: { title: 'False Positive Rate (FPR)', gridcolor: 'var(--border-color)' },
+                yaxis: { title: 'True Positive Rate (TPR)', gridcolor: 'var(--border-color)' },
+                legend: { orientation: 'h', y: -0.3 },
+                margin: { t: 10, b: 75, l: 40, r: 10 }
+            };
+            
+            Plotly.newPlot('chart-roc', [rocTrace, diagTrace], layout);
+        }
+
+        function renderProfitCurve() {
+            if (!modelCalibration) return;
+            const curve = modelCalibration.profit_curve;
+            
+            const profitTrace = {
+                x: curve.thresholds,
+                y: curve.profits,
+                mode: 'lines',
+                name: 'Expected Underwriting Profit',
+                line: { color: 'var(--gold-accent)', width: 3 }
+            };
+            
+            // Vertical cutoff line
+            const maxProfit = Math.max(...curve.profits);
+            const cutoffTrace = {
+                x: [modelCalibration.metrics.optimal_pd_cutoff, modelCalibration.metrics.optimal_pd_cutoff],
+                y: [Math.min(...curve.profits), maxProfit * 1.1],
+                mode: 'lines',
+                name: `Cutoff Threshold PD (${(modelCalibration.metrics.optimal_pd_cutoff * 100).toFixed(1)}%)`,
+                line: { color: 'var(--danger)', width: 2, dash: 'dash' }
+            };
+            
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                xaxis: { title: 'Probability of Default Cutoff', gridcolor: 'var(--border-color)' },
+                yaxis: { title: 'Net Portfolio Profit ($)', gridcolor: 'var(--border-color)' },
+                legend: { orientation: 'h', y: -0.3 },
+                margin: { t: 10, b: 75, l: 50, r: 10 }
+            };
+            
+            Plotly.newPlot('chart-profit', [profitTrace, cutoffTrace], layout);
+        }
+
+        function renderScoreDistribution() {
+            if (!modelCalibration) return;
+            const dist = modelCalibration.score_distribution;
+            
+            const binCenters = [];
+            for (let i = 0; i < dist.counts.length; i++) {
+                binCenters.push((dist.bin_edges[i] + dist.bin_edges[i+1]) / 2);
+            }
+            
+            const histTrace = {
+                x: binCenters,
+                y: dist.counts,
+                type: 'bar',
+                name: 'Portfolio Scores',
+                marker: {
+                    color: 'rgba(12, 30, 54, 0.4)',
+                    line: { color: 'var(--navy-primary)', width: 1 }
+                }
+            };
+            
+            // Add vertical line at optimal cutoff score
+            const maxCount = Math.max(...dist.counts);
+            const cutoffLine = {
+                x: [modelCalibration.metrics.optimal_score_cutoff, modelCalibration.metrics.optimal_score_cutoff],
+                y: [0, maxCount],
+                mode: 'lines',
+                name: `Cutoff Score (${modelCalibration.metrics.optimal_score_cutoff})`,
+                line: { color: 'var(--danger)', width: 3, dash: 'dash' }
+            };
+            
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                xaxis: { title: 'Scaled Credit Score (300 - 850)', gridcolor: 'var(--border-color)' },
+                yaxis: { title: 'Frequencies', gridcolor: 'var(--border-color)' },
+                legend: { orientation: 'h', y: -0.3 },
+                margin: { t: 10, b: 75, l: 40, r: 10 }
+            };
+            
+            Plotly.newPlot('chart-dist', [histTrace, cutoffLine], layout);
+        }
+    </script>
+</body>
+</html>
